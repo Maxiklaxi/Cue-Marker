@@ -8,7 +8,9 @@ Premiere ignores the cue chunk in WAV files, so PR-4 markers never show up after
 
 ### [**Download the latest release**](https://github.com/Maxiklaxi/Cue-Marker/releases/latest)
 
-![Cue Marker panel](docs/screenshot.png)
+![Cue Marker in Premiere Pro: the panel lists the PR-4 files and their cue points, the imported markers sit on the clips in the timeline](docs/premiere-timeline.webp)
+
+*Left: the panel after Import. Right: the PR-4 markers on the clips in the timeline.*
 
 ## Install
 
