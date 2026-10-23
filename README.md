@@ -12,11 +12,7 @@ Premiere ignores the cue chunk in WAV files, so PR-4 markers never show up after
 
 *Left: the panel after Import. Middle: the sound-report notes in the Log Note column. Right: the PR-4 markers on the clips in the timeline.*
 
-<details><summary>Settings</summary>
 
-![Settings](docs/settings-1.1.0.webp)
-
-</details>
 
 ## Install
 
@@ -34,6 +30,14 @@ Requires Premiere Pro 26.2 or newer. On first start the plugin asks for file acc
 Markers are named “Mark 1”, “Mark 2” … (the PR-4 stores no names). Prefix, marker color and language (English/German) can be changed in the settings (⚙).
 
 **Notes from the SOUND REPORT:** the PR-4 saves the notes you pick on the recorder (“Wild Track”, “False Take”, “Room Tone” …) and the scene name in a CSV next to the WAV files, not in the WAV itself. If that CSV is in the folder, Import also writes the note to the clip and the scene to the clip's **Scene** field. You choose in the settings whether the note goes to **Log Note**, **Description** or **Comment**; show that column in the Project panel via *Metadata Display* and you see the notes next to your clips, as in the screenshot above. Existing text is kept unless you enable overwriting.
+
+<img src="docs/sidus-fast-note.jpg" width="320" alt="Fast Note dialog in the Deity Sidus Audio app: preset notes such as Good, NG, Circled, Wild Track, False Start, False Take, ALT, RH, Overlap, Ambient, Room Tone, VFX, Interview, MOS, PU, plus a free-text field">
+
+*Where the notes come from: the “Fast Note” dialog in the Deity Sidus Audio app (also available on the PR-4 itself). Presets like Wild Track, False Take or Room Tone and free-text remarks end up in the sound report, and Cue Marker brings them into Premiere.*
+
+## Settings
+
+![Settings: marker name and color, duplicate handling, sound report options, language, update check](docs/settings-1.1.0.webp)
 
 ## Works with
 
