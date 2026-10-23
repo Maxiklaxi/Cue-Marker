@@ -32,6 +32,24 @@ const STRINGS = {
     "color.default": "Default",
     "color.GREEN": "Green", "color.RED": "Red", "color.MAGENTA": "Purple", "color.ORANGE": "Orange",
     "color.YELLOW": "Yellow", "color.BLUE": "Blue", "color.CYAN": "Cyan",
+    "sec.report": "Sound report",
+    "opt.report": "Import notes from the sound report",
+    "opt.report.hint": "Reads the recorder's CSV next to the WAV files (Deity PR-4: “<folder>.csv”) and writes the Notes column to the clip.",
+    "opt.reportField": "Target field",
+    "opt.reportField.hint": "Project panel column that receives the note.",
+    "field.logNote": "Log Note",
+    "field.description": "Description",
+    "field.comment": "Comment",
+    "opt.reportScene": "Also import Scene",
+    "opt.reportScene.hint": "Writes the Scene column of the report to the clip's Scene field.",
+    "opt.reportOverwrite": "Overwrite existing text",
+    "opt.reportOverwrite.hint": "Off: fields that already contain text are left alone.",
+    "row.note": (n) => `Note: ${n}`,
+    "row.scene": (s) => `Scene: ${s}`,
+    "row.noteKept": "existing text kept",
+    "row.noteWritten": "note written",
+    "chip.note": "note",
+    "summary.notes": (n) => `${n} note${n === 1 ? "" : "s"}`,
     "opt.skipDup": "Skip existing markers",
     "opt.skipDup.hint": "No second marker where the clip already has one.",
     "opt.fileComment": "File name in comment",
@@ -100,6 +118,24 @@ const STRINGS = {
     "color.default": "Standard",
     "color.GREEN": "Grün", "color.RED": "Rot", "color.MAGENTA": "Lila", "color.ORANGE": "Orange",
     "color.YELLOW": "Gelb", "color.BLUE": "Blau", "color.CYAN": "Cyan",
+    "sec.report": "Soundreport",
+    "opt.report": "Notizen aus dem Soundreport übernehmen",
+    "opt.report.hint": "Liest die CSV des Recorders neben den WAV-Dateien (Deity PR-4: „<Ordner>.csv“) und schreibt die Spalte Notes an den Clip.",
+    "opt.reportField": "Zielfeld",
+    "opt.reportField.hint": "Spalte im Projektfenster, die die Notiz erhält.",
+    "field.logNote": "Protokollnotiz",
+    "field.description": "Beschreibung",
+    "field.comment": "Kommentar",
+    "opt.reportScene": "Auch Szene übernehmen",
+    "opt.reportScene.hint": "Schreibt die Spalte Scene des Reports ins Szene-Feld des Clips.",
+    "opt.reportOverwrite": "Vorhandenen Text überschreiben",
+    "opt.reportOverwrite.hint": "Aus: Felder, die schon Text enthalten, bleiben unverändert.",
+    "row.note": (n) => `Notiz: ${n}`,
+    "row.scene": (s) => `Szene: ${s}`,
+    "row.noteKept": "vorhandener Text behalten",
+    "row.noteWritten": "Notiz geschrieben",
+    "chip.note": "Notiz",
+    "summary.notes": (n) => `${n} Notiz${n === 1 ? "" : "en"}`,
     "opt.skipDup": "Vorhandene Marker überspringen",
     "opt.skipDup.hint": "Kein zweiter Marker, wo der Clip schon einen hat.",
     "opt.fileComment": "Dateiname im Kommentar",
@@ -170,19 +206,21 @@ function applyLanguage() {
   for (const el of document.querySelectorAll("[data-i18n-title]")) el.title = t(el.getAttribute("data-i18n-title"));
   for (const b of document.querySelectorAll("#langRow .seg-btn")) b.classList.toggle("active", b.getAttribute("data-lang") === settings.lang);
   for (const sw of document.querySelectorAll("#colorRow .swatch")) sw.title = t("color." + sw.getAttribute("data-color"));
+  for (const b of document.querySelectorAll("#fieldRow .seg-btn")) b.classList.toggle("active", b.getAttribute("data-field") === settings.reportField);
   paintUpdateState();
   if (statusState === "idle") setStatus(t("status.idle"), "idle");
 }
 
 // ---------- Settings ----------
-const VERSION = "1.0.0";
+const VERSION = "1.1.0";
 const REPO = "Maxiklaxi/Cue-Marker";
 const REPO_URL = `https://github.com/${REPO}`;
 const RELEASES_URL = `${REPO_URL}/releases/latest`;
 const ISSUES_URL = `${REPO_URL}/issues/new/choose`;
 const UPDATE_API = `https://api.github.com/repos/${REPO}/releases/latest`;
 const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
-const DEFAULTS = { prefix: "Mark", skipDup: true, fileComment: true, debug: false, lang: "auto", color: "default" };
+const DEFAULTS = { prefix: "Mark", skipDup: true, fileComment: true, debug: false, lang: "auto", color: "default",
+  report: true, reportField: "logNote", reportScene: true, reportOverwrite: false };
 // Marker colors: names of ppro.Constants.MarkerColor (documented since 25.6; White is not
 // documented and therefore not offered). The hex values only paint the swatches.
 const COLORS = [
@@ -270,6 +308,9 @@ function applySettings() {
   paintToggle($("optSkipDup"), settings.skipDup);
   paintToggle($("optFileComment"), settings.fileComment);
   paintToggle($("optDebug"), settings.debug);
+  paintToggle($("optReport"), settings.report);
+  paintToggle($("optReportScene"), settings.reportScene);
+  paintToggle($("optReportOverwrite"), settings.reportOverwrite);
   $("btnLog").classList.toggle("on", settings.debug);
   $("logWrap").classList.toggle("visible", settings.debug);
   $("ver").textContent = VERSION;
@@ -314,6 +355,9 @@ $("optPrefix").addEventListener("change", (e) => {
 for (const row of document.querySelectorAll(".setting-row[data-opt]")) {
   const key = row.getAttribute("data-opt");
   row.addEventListener("click", () => { settings[key] = !settings[key]; saveSettings(); applySettings(); });
+}
+for (const b of document.querySelectorAll("#fieldRow .seg-btn")) {
+  b.addEventListener("click", (e) => { e.stopPropagation(); settings.reportField = b.getAttribute("data-field"); saveSettings(); applySettings(); });
 }
 for (const b of document.querySelectorAll("#langRow .seg-btn")) {
   b.addEventListener("click", (e) => { e.stopPropagation(); settings.lang = b.getAttribute("data-lang"); saveSettings(); applySettings(); });
@@ -669,6 +713,173 @@ async function readCues(nativePath) {
   }
 }
 
+// ---------- Sound report (CSV next to the WAV files) ----------
+// The Deity PR-4 writes "<folder>.csv" with a "SOUND REPORT" header and one row per
+// take (File Name, Scene, Length, Start TC, …, Notes). Notes typed on the recorder
+// ("Wild Track") live only there, not in the WAV. The parser is generic: any CSV
+// whose header row has a "File Name" column works.
+function splitCsvLine(line) {
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) {
+      if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') q = false;
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out.map((s) => s.trim());
+}
+
+function parseSoundReport(text) {
+  const lines = String(text).replace(/^﻿/, "").split(/\r\n|\r|\n/);
+  const headerIdx = lines.findIndex((l) => /^"?file ?name"?\s*,/i.test(l));
+  if (headerIdx < 0) return null;
+  const header = splitCsvLine(lines[headerIdx]).map((h) => h.toLowerCase());
+  const col = (names) => header.findIndex((h) => names.includes(h));
+  const iFile = col(["file name", "filename", "file"]);
+  const iNotes = col(["notes", "note", "comment", "comments"]);
+  const iScene = col(["scene"]);
+  const iTc = col(["start tc", "start timecode", "timecode"]);
+  if (iFile < 0) return null;
+  const files = {};
+  for (const line of lines.slice(headerIdx + 1)) {
+    if (!line.trim()) continue;
+    const f = splitCsvLine(line);
+    const name = (f[iFile] || "").trim();
+    if (!name) continue;
+    files[name.toLowerCase()] = {
+      file: name,
+      notes: iNotes >= 0 ? (f[iNotes] || "").trim() : "",
+      scene: iScene >= 0 ? (f[iScene] || "").trim() : "",
+      startTc: iTc >= 0 ? (f[iTc] || "").trim() : "",
+    };
+  }
+  const isSoundReport = /sound\s*report/i.test(lines.slice(0, headerIdx).join(" "));
+  return { files, isSoundReport, count: Object.keys(files).length };
+}
+
+function folderOf(p) {
+  const i = Math.max(p.lastIndexOf("/"), p.lastIndexOf("\\"));
+  return i > 0 ? p.slice(0, i) : p;
+}
+
+async function readTextFile(nativePath) {
+  const errors = [];
+  for (const p of pathVariants(nativePath)) {
+    try { return await fs.readFile(p, "utf8"); } catch (e) { errors.push(`readFile(${p}): ${e.message || e}`); }
+  }
+  for (const p of pathVariants(nativePath)) {
+    try {
+      const entry = await localFileSystem.getEntryWithUrl(p);
+      return await entry.read({ format: formats.utf8 });
+    } catch (e) { errors.push(`entry(${p}): ${e.message || e}`); }
+  }
+  throw new Error(errors.join(" | "));
+}
+
+async function listFolder(folderPath) {
+  const errors = [];
+  for (const p of pathVariants(folderPath)) {
+    try {
+      const names = await fs.readdir(p);
+      if (Array.isArray(names)) return names.map((n) => (typeof n === "string" ? n : n.name)).filter(Boolean);
+    } catch (e) { errors.push(`readdir(${p}): ${e.message || e}`); }
+  }
+  for (const p of pathVariants(folderPath)) {
+    try {
+      const entry = await localFileSystem.getEntryWithUrl(p);
+      const entries = await entry.getEntries();
+      return entries.map((en) => en.name);
+    } catch (e) { errors.push(`entries(${p}): ${e.message || e}`); }
+  }
+  throw new Error(errors.join(" | "));
+}
+
+const reportCache = new Map(); // folder → { report, path } | null
+
+async function findSoundReport(folderPath) {
+  if (reportCache.has(folderPath)) return reportCache.get(folderPath);
+  let result = null;
+  try {
+    let names;
+    try {
+      names = await listFolder(folderPath);
+    } catch (e) {
+      // No listing: fall back to the PR-4 naming scheme "<folder name>.csv"
+      log("folder listing failed, trying <folder>.csv: " + (e.message || e), "dim");
+      names = [folderPath.split(/[\\/]/).pop() + ".csv"];
+    }
+    const csvs = names.filter((n) => /\.csv$/i.test(n));
+    const sep = folderPath.includes("\\") && !folderPath.includes("/") ? "\\" : "/";
+    for (const n of csvs) {
+      const p = folderPath + sep + n;
+      try {
+        const rep = parseSoundReport(await readTextFile(p));
+        if (rep && rep.count) {
+          result = { report: rep, path: p };
+          log(`sound report: ${p} (${rep.count} rows${rep.isSoundReport ? "" : ", no SOUND REPORT header"})`, "dim");
+          if (rep.isSoundReport) break;
+        }
+      } catch (e) {
+        log(`csv skipped ${p}: ${e.message || e}`, "dim");
+      }
+    }
+  } catch (e) {
+    log("sound report lookup failed: " + (e.message || e), "dim");
+  }
+  reportCache.set(folderPath, result);
+  return result;
+}
+
+function reportEntryFor(found, nativePath) {
+  if (!found) return null;
+  const name = baseName(nativePath).toLowerCase();
+  return found.report.files[name] || null;
+}
+
+// ---------- Project metadata (columns in the Project panel) ----------
+const PPRO_MD_NS = "http://ns.adobe.com/premierePrivateProjectMetaData/1.0/";
+const REPORT_FIELDS = {
+  logNote: "Column.Intrinsic.LogNote",
+  description: "Column.PropertyText.Description",
+  comment: "Column.PropertyText.Comment",
+};
+const SCENE_FIELD = "Column.PropertyText.Scene";
+
+// values: { "<Column id>": "text" }. Returns { written: [...ids], kept: [...ids] }.
+// Existing text is kept unless settings.reportOverwrite is on or it already matches.
+async function writeProjectMetadata(project, item, clipName, values) {
+  const { XMPMeta } = require("uxp").xmp;
+  const xmpStr = await ppro.Metadata.getProjectMetadata(item);
+  const xmp = new XMPMeta(xmpStr || "");
+  const written = [], kept = [];
+  for (const [id, value] of Object.entries(values)) {
+    if (!value) continue;
+    let existing = "";
+    try { if (xmp.doesPropertyExist(PPRO_MD_NS, id)) existing = String(xmp.getProperty(PPRO_MD_NS, id).value || ""); } catch (_) {}
+    if (existing === value) continue;
+    if (existing && !settings.reportOverwrite) { kept.push(id); continue; }
+    xmp.setProperty(PPRO_MD_NS, id, value);
+    written.push(id);
+  }
+  if (written.length) {
+    const serialized = xmp.serialize();
+    let ok = false;
+    project.lockedAccess(() => {
+      ok = project.executeTransaction((ca) => {
+        ca.addAction(ppro.Metadata.createSetProjectMetadataAction(item, serialized, written));
+      }, `Cue Marker notes: ${clipName}`);
+    });
+    if (!ok) throw new Error(t("err.transaction"));
+  }
+  return { written, kept };
+}
+
 // ---------- Premiere ----------
 const MEDIA = (ppro.Constants && ppro.Constants.ContentType && ppro.Constants.ContentType.MEDIA) ?? undefined;
 const DUP_TOLERANCE = 0.002; // seconds
@@ -694,7 +905,7 @@ async function selectedClips(project) {
     try { path = await clip.getMediaFilePath(); } catch (e) { out.push({ name, skip: "skip.pathError", detail: e.message || String(e) }); continue; }
     if (!path) { out.push({ name, skip: "skip.noPath" }); continue; }
     if (!/\.(wav|wave|bwf|rf64)$/i.test(path)) { out.push({ name, skip: "skip.notWav" }); continue; }
-    out.push({ name, clip, path });
+    out.push({ name, clip, item, path });
   }
   return out;
 }
@@ -756,7 +967,8 @@ async function run(dry) {
   }
 
   const rows = [];
-  let totalNew = 0, totalDup = 0, totalFiles = 0, totalErr = 0;
+  let totalNew = 0, totalDup = 0, totalFiles = 0, totalErr = 0, totalNotes = 0;
+  reportCache.clear();
 
   for (const c of clips) {
     if (c.skip) {
@@ -777,8 +989,37 @@ async function run(dry) {
     totalFiles++;
     log(`${info.format} · ${info.sampleRate} Hz · ${info.channels} ch · chunks: ${info.chunks.join(" ")}`, "dim");
     const fmt = t("sub.format", info.sampleRate, info.channels);
+
+    // Sound report note for this file (Deity PR-4 CSV next to the WAV)
+    let note = null; // { notes, scene, status }
+    if (settings.report) {
+      const entry = reportEntryFor(await findSoundReport(folderOf(c.path)), c.path);
+      if (entry && (entry.notes || (settings.reportScene && entry.scene))) {
+        note = { notes: entry.notes, scene: settings.reportScene ? entry.scene : "", status: "" };
+        log(`  report: notes "${entry.notes}" scene "${entry.scene}"`, "dim");
+        if (!dry) {
+          const values = {};
+          if (entry.notes) values[REPORT_FIELDS[settings.reportField] || REPORT_FIELDS.logNote] = entry.notes;
+          if (settings.reportScene && entry.scene) values[SCENE_FIELD] = entry.scene;
+          try {
+            const r = await writeProjectMetadata(project, c.item, c.name, values);
+            note.status = r.written.length ? "written" : (r.kept.length ? "kept" : "");
+            if (r.written.length) totalNotes++;
+            log(`  metadata: written ${r.written.join(", ") || "-"}; kept ${r.kept.join(", ") || "-"}`, r.kept.length ? "warn" : "dim");
+          } catch (e) {
+            note.status = "error";
+            log(`  metadata failed for "${c.name}": ${e.message || e}`, "err");
+          }
+        }
+      }
+    }
+    const noteLine = note ? [note.notes ? t("row.note", note.notes) : "", note.scene ? t("row.scene", note.scene) : "",
+      note.status === "kept" ? t("row.noteKept") : note.status === "written" ? t("row.noteWritten") : note.status === "error" ? t("chip.error") : ""]
+      .filter(Boolean).join(" · ") : "";
+    const subWith = (base) => noteLine ? base + " · " + noteLine : base;
+
     if (!info.cues.length) {
-      rows.push({ name: c.name, chip: t("chip.noCues"), sub: fmt });
+      rows.push({ name: c.name, chip: note ? t("chip.note") : t("chip.noCues"), chipCls: note && note.status === "written" ? "ok" : undefined, sub: subWith(fmt) });
       continue;
     }
 
@@ -850,13 +1091,14 @@ async function run(dry) {
       name: c.name,
       chip: dry ? t("chip.cues", plan.length) : t("chip.new", added),
       chipCls: dry ? "accent" : (added ? "ok" : "warn"),
-      sub: fmt + (dups ? " · " + t("sub.existing", dups) : ""),
+      sub: subWith(fmt + (dups ? " · " + t("sub.existing", dups) : "")),
       times: plan.map((p) => fmtTime(p.seconds) + (p.dup ? "*" : "")),
     });
   }
 
   renderList(rows);
-  summary(t(dry ? "summary.dry" : "summary.run", totalFiles, totalNew, totalDup, totalErr), totalErr ? "warn" : "ok");
+  const base = t(dry ? "summary.dry" : "summary.run", totalFiles, totalNew, totalDup, totalErr);
+  summary(totalNotes && !dry ? `${base}, ${t("summary.notes", totalNotes)}` : base, totalErr ? "warn" : "ok");
 }
 
 function baseName(p) {

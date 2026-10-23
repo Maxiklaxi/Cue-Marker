@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 – unreleased
+
+- Sound report import: reads the recorder's CSV next to the WAV files (Deity PR-4 `<folder>.csv`) and writes the Notes column to the clip's Log Note (or Description / Comment) and the Scene column to the clip's Scene field. Visible as columns in the Project panel. Existing text is kept unless "Overwrite existing text" is on.
+- Rows in the panel show the note; the summary counts written notes.
+
 ## 1.0.0 – 2026-10-23
 
 - First release.

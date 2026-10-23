@@ -1,6 +1,6 @@
 # Cue Marker – import Deity PR-4 markers into Premiere Pro
 
-![Premiere Pro UXP plugin](https://img.shields.io/badge/Premiere%20Pro-UXP%20Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.0-lightgrey) ![License](https://img.shields.io/badge/license-MIT-green)
+![Premiere Pro UXP plugin](https://img.shields.io/badge/Premiere%20Pro-UXP%20Plugin-blue) ![Version](https://img.shields.io/badge/version-1.1.0-lightgrey) ![License](https://img.shields.io/badge/license-MIT-green)
 
 Free Premiere Pro panel that reads the **MARK points of the Deity PR-4** (and any other recorder that writes WAV cue points) and adds them as **clip markers** to your audio clips.
 
@@ -26,6 +26,8 @@ Requires Premiere Pro 26.2 or newer. On first start the plugin asks for file acc
 3. **Import** adds them as clip markers. Existing markers at the same position are skipped, so you can run it again safely.
 
 Markers are named “Mark 1”, “Mark 2” … (the PR-4 stores no names). Prefix, marker color and language (English/German) can be changed in the settings (⚙).
+
+**Notes from the sound report:** the PR-4 saves the notes you type on the recorder (“Wild Track” …) and the scene name in a CSV next to the WAV files, not in the WAV itself. If that CSV is there, Import also writes the note into the clip's **Log Note** field and the scene into **Scene**, so you can show them as columns in the Project panel (*Metadata Display*). Target field and overwrite behaviour are in the settings.
 
 ## Works with
 

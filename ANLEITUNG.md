@@ -28,12 +28,17 @@ Ergebnis pro Clip:
 - Zeiten als `mm:ss.mmm`, ein `*` markiert Positionen, an denen schon ein Marker lag
 - „übersprungen“ mit Grund: Ordner, Sequenz, offline, keine WAV-Datei
 
+## Notizen aus dem Soundreport
+
+Der PR-4 speichert Notizen vom Recorder („Wild Track“) und die Szene nicht in der WAV, sondern in einer CSV neben den Dateien (`<Ordner>.csv`, Kopfzeile „SOUND REPORT“). Liegt sie vor, schreibt „Import“ die Notiz ins Feld **Protokollnotiz** (wahlweise Beschreibung oder Kommentar) und die Szene ins Feld **Szene** des Clips. Im Projektfenster über „Metadatenanzeige“ als Spalten einblenden. Felder mit vorhandenem Text bleiben unverändert, außer „Vorhandenen Text überschreiben“ ist an. Achtung: Der PR-4 schreibt den Report nicht bei jedem Take neu; Takes, die im Report fehlen, bekommen keine Notiz.
+
 ## Einstellungen (⚙ oder Flyout-Menü ≡ des Panels)
 
 - **Marker-Name** – Standard „Mark“, wird nummeriert („Mark 1“ …). Enthält die WAV Labels (`labl`), haben diese Vorrang.
 - **Marker-Farbe** – Grün, Rot, Lila, Orange, Gelb, Blau, Cyan oder „Standard“ (Premieres Vorgabe). Die Farbe wird direkt nach dem Anlegen in einem zweiten Schritt gesetzt und ist deshalb ein eigener Undo-Eintrag. Weiß bietet die API nicht dokumentiert an.
 - **Vorhandene Marker überspringen** – kein zweiter Marker innerhalb von 2 ms an derselben Stelle.
 - **Dateiname im Kommentar** – Kommentar enthält Cue-Nummer, Zeit, Sample und Dateiname.
+- **Soundreport** – Notizen übernehmen an/aus, Zielfeld (Protokollnotiz / Beschreibung / Kommentar), Szene übernehmen, vorhandenen Text überschreiben.
 - **Debug-Protokoll** – zeigt Pfade, Lesevariante, Chunks und Fehlerdetails unter der Liste. Auch über das Listen-Symbol in der Werkzeugleiste. Bei Problemen einschalten und über das Kopieren-Symbol weitergeben. Das Protokoll ist immer englisch, damit Fehlerberichte für alle lesbar sind.
 - **Sprache** – Auto (Systemsprache), English, Deutsch.
 - **Updates** – das Panel fragt einmal täglich die GitHub-Releases ab. Gibt es eine neuere Version, erscheint ein blaues Feld in der Werkzeugleiste, Klick öffnet die Release-Seite. Manuell über „Jetzt prüfen“ oder das Flyout-Menü.
