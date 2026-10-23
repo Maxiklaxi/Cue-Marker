@@ -1,6 +1,10 @@
 # Cue Marker – Premiere Pro UXP plugin
 
+![Premiere Pro UXP plugin](https://img.shields.io/badge/Premiere%20Pro-UXP%20Plugin-blue) ![Version](https://img.shields.io/badge/version-1.0.0-lightgrey) ![License](https://img.shields.io/badge/license-MIT-green)
+
 Imports the cue points stored in WAV files as **clip markers** in Adobe Premiere Pro.
+
+### [**Download the latest release**](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/releases/latest)
 
 Field recorders such as the **Deity PR-4** write their MARK button presses into the WAV file's `cue ` chunk. Premiere Pro ignores that chunk for audio files (it only picks up XMP markers), so the markers never show up after import. This panel reads them straight from the WAV and adds them to the selected project items. The WAV files are only read, never modified.
 
@@ -23,6 +27,7 @@ Field recorders such as the **Deity PR-4** write their MARK button presses into 
 - Skips positions that already carry a clip marker (±2 ms), so you can re-run it safely.
 - Bins, sequences, offline clips and non-WAV media in the selection are skipped and listed with the reason.
 - English and German UI, automatically chosen from the system language and switchable in the settings.
+- Update notice: the panel asks GitHub once a day whether a newer release exists and shows a small badge in the toolbar. Manual check via the flyout menu or the settings. Only `api.github.com` is contacted, nothing is sent.
 - Flat, tool-like panel in the style of other Premiere UXP panels such as OpenCurve: clip rows tinted by result, status strip and Go button at the bottom, settings as a full-panel view. Settings are also reachable from the panel's flyout menu (≡).
 
 ## Works with
@@ -41,7 +46,15 @@ Recorders from Zoom, Sound Devices, Tascam and others write the same chunk and s
 - Adobe Premiere Pro **26.2 or newer** (UXP Premiere API). Developed on 26.5.
 - For loading the plugin from source: [Adobe UXP Developer Tools](https://developer.adobe.com/photoshop/uxp/2022/guides/devtool/).
 
-## Installation (from source)
+## Installation
+
+### From a release
+
+1. Download the `.ccx` file from the [latest release](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/releases/latest).
+2. Double-click it. Creative Cloud installs the plugin into Premiere Pro.
+3. The panel appears under *Window → UXP Plugins → Cue Marker*.
+
+### From source (developer mode)
 
 1. Download or clone this repository.
 2. Premiere Pro: *Settings → Plugins → Enable developer mode*, then restart Premiere.
@@ -104,9 +117,25 @@ Files:
 - Cue points inside bins are not collected recursively; select the clips themselves.
 - Markers are placed by sample position. If a clip's audio was interpreted at a different sample rate in Premiere, the markers follow the interpreted rate.
 
-## Contributing
+## Feedback, bugs and feature requests
 
-Issues and pull requests are welcome. For recorder compatibility reports, please attach the output of `_test_cues.js` or a trimmed sample file (a few seconds with a cue point is enough).
+This is a small community project. Please use the GitHub issue templates:
+
+- [Report a bug](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/issues/new?template=bug_report.md) – with the debug log from the panel, if possible.
+- [Request a feature](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/issues/new?template=feature_request.md) – for example support for another recorder, sound-report import or sequence markers.
+- [Discussions](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/discussions) for questions and ideas.
+
+For recorder compatibility reports, attach the output of `_test_cues.js` or a trimmed sample file (a few seconds with a cue point is enough). Pull requests are welcome too.
+
+## How this plugin was made
+
+This plugin is **fully vibe-coded**: the code, the WAV parser, the documentation and the panel design were written by an AI coding assistant (Claude Code) in conversation with the maintainer, who tested it against real recordings in Premiere Pro. Please keep that in mind when reading the source, and report anything that looks wrong.
+
+## Credits
+
+- **Design:** The panel's look and feel is modelled on [OpenCurve](https://github.com/fayewave/OpenCurve) by [faye](https://github.com/fayewave) – the flat toolbar, tinted rows, status strip, Go button and full-panel settings. No code was taken from OpenCurve. Thank you for setting the bar for Premiere UXP panels.
+- **API examples:** Adobe's [uxp-premiere-pro-samples](https://github.com/AdobeDocs/uxp-premiere-pro-samples).
+- **Test recordings:** Deity PR-4.
 
 ## License
 

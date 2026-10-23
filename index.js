@@ -42,6 +42,20 @@ const STRINGS = {
     "opt.lang.hint": "“Auto” follows the system language.",
     "lang.auto": "Auto",
     "footer.version": "Version",
+    "sec.about": "Updates & feedback",
+    "opt.updates": "Updates",
+    "update.hint.idle": "Checks GitHub once a day for a new release.",
+    "update.hint.latest": (v) => `Up to date (v${v}).`,
+    "update.hint.available": (v, cur) => `Version ${v} available – you have ${cur}.`,
+    "update.hint.error": "GitHub not reachable.",
+    "update.hint.none": "No release published yet.",
+    "update.title": "New version on GitHub – click to open",
+    "update.checking": "Checking for updates …",
+    "btn.checkUpdates": "Check now",
+    "opt.feedback": "Feedback",
+    "opt.feedback.hint": "Bugs and feature requests are welcome as GitHub issues.",
+    "btn.issue": "Report / request",
+    "link.copied": "Link copied to clipboard",
     "clips": (n) => `${n} clip${n === 1 ? "" : "s"}`,
     "status.idle": "Select audio clips in the Project panel",
     "status.reading": "Reading selection …",
@@ -96,6 +110,20 @@ const STRINGS = {
     "opt.lang.hint": "„Auto“ folgt der Systemsprache.",
     "lang.auto": "Auto",
     "footer.version": "Version",
+    "sec.about": "Updates & Feedback",
+    "opt.updates": "Updates",
+    "update.hint.idle": "Prüft einmal täglich auf GitHub, ob es eine neue Version gibt.",
+    "update.hint.latest": (v) => `Aktuell (v${v}).`,
+    "update.hint.available": (v, cur) => `Version ${v} verfügbar – installiert ist ${cur}.`,
+    "update.hint.error": "GitHub nicht erreichbar.",
+    "update.hint.none": "Noch keine Version veröffentlicht.",
+    "update.title": "Neue Version auf GitHub – klicken zum Öffnen",
+    "update.checking": "Suche nach Updates …",
+    "btn.checkUpdates": "Jetzt prüfen",
+    "opt.feedback": "Feedback",
+    "opt.feedback.hint": "Fehler und Feature-Wünsche gern als GitHub-Issue.",
+    "btn.issue": "Melden / wünschen",
+    "link.copied": "Link in die Zwischenablage kopiert",
     "clips": (n) => `${n} Clip${n === 1 ? "" : "s"}`,
     "status.idle": "Audioclips im Projektfenster auswählen",
     "status.reading": "Lese Auswahl …",
@@ -142,11 +170,18 @@ function applyLanguage() {
   for (const el of document.querySelectorAll("[data-i18n-title]")) el.title = t(el.getAttribute("data-i18n-title"));
   for (const b of document.querySelectorAll("#langRow .seg-btn")) b.classList.toggle("active", b.getAttribute("data-lang") === settings.lang);
   for (const sw of document.querySelectorAll("#colorRow .swatch")) sw.title = t("color." + sw.getAttribute("data-color"));
+  paintUpdateState();
   if (statusState === "idle") setStatus(t("status.idle"), "idle");
 }
 
 // ---------- Settings ----------
 const VERSION = "1.0.0";
+const REPO = "Maxiklaxi/cue-marker-premiere-pro-uxp";
+const REPO_URL = `https://github.com/${REPO}`;
+const RELEASES_URL = `${REPO_URL}/releases/latest`;
+const ISSUES_URL = `${REPO_URL}/issues/new/choose`;
+const UPDATE_API = `https://api.github.com/repos/${REPO}/releases/latest`;
+const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const DEFAULTS = { prefix: "Mark", skipDup: true, fileComment: true, debug: false, lang: "auto", color: "default" };
 // Marker colors: names of ppro.Constants.MarkerColor (documented since 25.6; White is not
 // documented and therefore not offered). The hex values only paint the swatches.
@@ -301,12 +336,16 @@ try {
         show() {}, hide() {}, destroy() {},
         menuItems: [
           { id: "settings", label: "Settings" },
+          { id: "check-updates", label: "Check for Updates" },
+          { id: "github", label: "GitHub" },
           { id: "debug", label: "Debug Log" },
           { id: "sep", label: "-" },
           { id: "made-by", label: "made by Mees-Film", enabled: false },
         ],
         invokeMenu(id) {
           if (id === "settings") showView("settings");
+          if (id === "check-updates") checkForUpdates(false);
+          if (id === "github") openUrl(REPO_URL);
           if (id === "debug") { settings.debug = !settings.debug; saveSettings(); applySettings(); }
         },
       },
@@ -316,9 +355,110 @@ try {
   console.warn("entrypoints.setup failed:", e);
 }
 
+// ---------- Links & update check ----------
+// Same approach as other community UXP panels: ask the GitHub releases API for the
+// latest tag, compare with VERSION, show a pill in the toolbar when newer.
+// Silent check at most once a day; a manual check always runs.
+let updateInfo = { state: "idle", latest: null }; // idle | checking | latest | available | error | none
+
+function loadUpdateCache() {
+  try {
+    const raw = localStorage.getItem("cue-marker.update");
+    if (raw) {
+      const c = JSON.parse(raw);
+      if (c.latest && isNewerVersion(c.latest, VERSION)) updateInfo = { state: "available", latest: c.latest };
+      return c;
+    }
+  } catch (_) {}
+  return {};
+}
+
+function saveUpdateCache(c) {
+  try { localStorage.setItem("cue-marker.update", JSON.stringify(c)); } catch (_) {}
+}
+
+function isNewerVersion(a, b) {
+  const pa = String(a).split(".").map((x) => parseInt(x, 10) || 0);
+  const pb = String(b).split(".").map((x) => parseInt(x, 10) || 0);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] || 0) > (pb[i] || 0)) return true;
+    if ((pa[i] || 0) < (pb[i] || 0)) return false;
+  }
+  return false;
+}
+
+function paintUpdateState() {
+  const pill = $("btnUpdate");
+  const hint = $("updateHint");
+  const st = updateInfo.state;
+  pill.style.display = st === "available" ? "" : "none";
+  if (st === "available") $("updateLabel").textContent = "v" + updateInfo.latest;
+  hint.textContent =
+    st === "available" ? t("update.hint.available", updateInfo.latest, VERSION) :
+    st === "latest" ? t("update.hint.latest", VERSION) :
+    st === "error" ? t("update.hint.error") :
+    st === "none" ? t("update.hint.none") :
+    st === "checking" ? t("update.checking") :
+    t("update.hint.idle");
+}
+
+async function checkForUpdates(silent) {
+  const cache = loadUpdateCache();
+  if (silent && cache.at && Date.now() - cache.at < UPDATE_INTERVAL_MS) { paintUpdateState(); return; }
+  updateInfo.state = "checking";
+  paintUpdateState();
+  if (!silent) flashStatus(t("update.checking"));
+  try {
+    const r = await fetch(UPDATE_API, { headers: { Accept: "application/vnd.github+json" } });
+    if (r.status === 404) {
+      updateInfo = { state: "none", latest: null };
+      saveUpdateCache({ at: Date.now(), latest: null });
+    } else {
+      if (!r.ok) throw new Error("GitHub API " + r.status);
+      const data = await r.json();
+      if (!data || typeof data.tag_name !== "string" || (data.html_url && !data.html_url.includes(REPO))) throw new Error("unexpected response");
+      const latest = data.tag_name.replace(/^v/i, "");
+      if (!/^\d+\.\d+\.\d+/.test(latest)) throw new Error("no version tag");
+      updateInfo = isNewerVersion(latest, VERSION) ? { state: "available", latest } : { state: "latest", latest };
+      saveUpdateCache({ at: Date.now(), latest });
+      log(`update check: latest v${latest}, installed v${VERSION}`, "dim");
+    }
+  } catch (e) {
+    updateInfo = { state: "error", latest: updateInfo.latest };
+    log("update check failed: " + (e.message || e), "dim");
+  }
+  paintUpdateState();
+  if (!silent) {
+    if (updateInfo.state === "available") flashStatus(t("update.hint.available", updateInfo.latest, VERSION));
+    else if (updateInfo.state === "latest") flashStatus(t("update.hint.latest", VERSION));
+    else if (updateInfo.state === "none") flashStatus(t("update.hint.none"));
+    else flashStatus(t("update.hint.error"));
+  }
+}
+
+async function openUrl(url) {
+  try {
+    await require("uxp").shell.openExternal(url);
+  } catch (e) {
+    // Fall back to the clipboard when the host refuses to open a browser
+    try {
+      await navigator.clipboard.setContent({ "text/plain": url });
+      flashStatus(t("link.copied"));
+    } catch (_) {
+      log("could not open " + url + ": " + (e.message || e), "warn");
+    }
+  }
+}
+
+$("btnUpdate").addEventListener("click", () => openUrl(RELEASES_URL));
+$("btnCheckUpdates").addEventListener("click", (e) => { e.stopPropagation(); checkForUpdates(false); });
+$("btnGitHub").addEventListener("click", (e) => { e.stopPropagation(); openUrl(REPO_URL); });
+$("btnIssue").addEventListener("click", (e) => { e.stopPropagation(); openUrl(ISSUES_URL); });
+
 buildSwatches();
 loadSettings();
 applySettings();
+setTimeout(() => checkForUpdates(true), 1500);
 
 // ---------- Result list ----------
 function fmtTime(sec) {

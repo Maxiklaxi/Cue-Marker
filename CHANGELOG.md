@@ -7,5 +7,6 @@
 - Check mode (read-only) and import mode (clip markers, one undo step per clip).
 - Skips positions that already carry a marker.
 - Optional marker color.
+- Update notice via the GitHub releases API, links to the repository and issue templates.
 - English and German UI.
 - Flat panel layout: tinted clip rows, status strip with Check/Import buttons, full-panel settings, flyout menu.

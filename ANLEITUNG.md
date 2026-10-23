@@ -36,6 +36,8 @@ Ergebnis pro Clip:
 - **Dateiname im Kommentar** – Kommentar enthält Cue-Nummer, Zeit, Sample und Dateiname.
 - **Debug-Protokoll** – zeigt Pfade, Lesevariante, Chunks und Fehlerdetails unter der Liste. Auch über das Listen-Symbol in der Werkzeugleiste. Bei Problemen einschalten und über das Kopieren-Symbol weitergeben. Das Protokoll ist immer englisch, damit Fehlerberichte für alle lesbar sind.
 - **Sprache** – Auto (Systemsprache), English, Deutsch.
+- **Updates** – das Panel fragt einmal täglich die GitHub-Releases ab. Gibt es eine neuere Version, erscheint ein blaues Feld in der Werkzeugleiste, Klick öffnet die Release-Seite. Manuell über „Jetzt prüfen“ oder das Flyout-Menü.
+- **Feedback** – Buttons „GitHub“ und „Melden / wünschen“ öffnen das Repository bzw. ein neues Issue.
 
 ## Test ohne Premiere
 

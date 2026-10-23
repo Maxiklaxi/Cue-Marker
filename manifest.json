@@ -22,6 +22,9 @@
   ],
   "requiredPermissions": {
     "localFileSystem": "fullAccess",
-    "clipboard": "readAndWrite"
+    "clipboard": "readAndWrite",
+    "network": {
+      "domains": ["api.github.com"]
+    }
   }
 }
