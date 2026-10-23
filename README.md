@@ -4,7 +4,7 @@
 
 Imports the cue points stored in WAV files as **clip markers** in Adobe Premiere Pro.
 
-### [**Download the latest release**](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/releases/latest)
+### [**Download the latest release**](https://github.com/Maxiklaxi/Cue-Marker/releases/latest)
 
 Field recorders such as the **Deity PR-4** write their MARK button presses into the WAV file's `cue ` chunk. Premiere Pro ignores that chunk for audio files (it only picks up XMP markers), so the markers never show up after import. This panel reads them straight from the WAV and adds them to the selected project items. The WAV files are only read, never modified.
 
@@ -50,7 +50,7 @@ Recorders from Zoom, Sound Devices, Tascam and others write the same chunk and s
 
 ### From a release
 
-1. Download the `.ccx` file from the [latest release](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/releases/latest).
+1. Download the `.ccx` file from the [latest release](https://github.com/Maxiklaxi/Cue-Marker/releases/latest).
 2. Double-click it. Creative Cloud installs the plugin into Premiere Pro.
 3. The panel appears under *Window → UXP Plugins → Cue Marker*.
 
@@ -121,9 +121,9 @@ Files:
 
 This is a small community project. Please use the GitHub issue templates:
 
-- [Report a bug](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/issues/new?template=bug_report.md) – with the debug log from the panel, if possible.
-- [Request a feature](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/issues/new?template=feature_request.md) – for example support for another recorder, sound-report import or sequence markers.
-- [Discussions](https://github.com/Maxiklaxi/cue-marker-premiere-pro-uxp/discussions) for questions and ideas.
+- [Report a bug](https://github.com/Maxiklaxi/Cue-Marker/issues/new?template=bug_report.md) – with the debug log from the panel, if possible.
+- [Request a feature](https://github.com/Maxiklaxi/Cue-Marker/issues/new?template=feature_request.md) – for example support for another recorder, sound-report import or sequence markers.
+- [Discussions](https://github.com/Maxiklaxi/Cue-Marker/discussions) for questions and ideas.
 
 For recorder compatibility reports, attach the output of `_test_cues.js` or a trimmed sample file (a few seconds with a cue point is enough). Pull requests are welcome too.
 

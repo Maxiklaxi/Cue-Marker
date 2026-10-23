@@ -176,7 +176,7 @@ function applyLanguage() {
 
 // ---------- Settings ----------
 const VERSION = "1.0.0";
-const REPO = "Maxiklaxi/cue-marker-premiere-pro-uxp";
+const REPO = "Maxiklaxi/Cue-Marker";
 const REPO_URL = `https://github.com/${REPO}`;
 const RELEASES_URL = `${REPO_URL}/releases/latest`;
 const ISSUES_URL = `${REPO_URL}/issues/new/choose`;
