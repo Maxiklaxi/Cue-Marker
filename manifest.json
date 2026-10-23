@@ -15,16 +15,34 @@
       "label": {
         "default": "Cue Marker"
       },
-      "minimumSize": { "width": 300, "height": 360 },
-      "preferredDockedSize": { "width": 360, "height": 600 },
-      "preferredFloatingSize": { "width": 400, "height": 640 }
+      "minimumSize": {
+        "width": 300,
+        "height": 360
+      },
+      "preferredDockedSize": {
+        "width": 360,
+        "height": 600
+      },
+      "preferredFloatingSize": {
+        "width": 400,
+        "height": 640
+      }
     }
   ],
   "requiredPermissions": {
     "localFileSystem": "fullAccess",
     "clipboard": "readAndWrite",
     "network": {
-      "domains": ["api.github.com"]
+      "domains": [
+        "api.github.com"
+      ],
+      "reasonForPermission": "Check GitHub for new Cue Marker releases"
+    },
+    "launchProcess": {
+      "schemes": [
+        "https"
+      ],
+      "extensions": []
     }
   }
 }

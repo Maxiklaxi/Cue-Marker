@@ -59,7 +59,7 @@ Recorders from Zoom, Sound Devices, Tascam and others write the same chunk and s
 1. Download or clone this repository.
 2. Premiere Pro: *Settings → Plugins → Enable developer mode*, then restart Premiere.
 3. UXP Developer Tools: *Add Plugin* → select `manifest.json` from this folder → *Load*.
-4. On first load UXP asks for permission to access your files (`fullAccess`). The plugin needs it to read the WAV files that live outside the plugin folder. It never writes to them.
+4. On first load UXP asks for permissions: file access (`fullAccess`, to read WAV files outside the plugin folder; nothing is written), network access to `api.github.com` (update check) and opening `https` links in the browser (GitHub buttons).
 5. The panel appears as *Cue Marker* (otherwise: *Window → UXP Plugins*).
 
 ## Usage
