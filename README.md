@@ -2,15 +2,21 @@
 
 ![Premiere Pro UXP plugin](https://img.shields.io/badge/Premiere%20Pro-UXP%20Plugin-blue) ![Version](https://img.shields.io/badge/version-1.1.0-lightgrey) ![License](https://img.shields.io/badge/license-MIT-green)
 
-Free Premiere Pro panel that reads the **MARK points of the Deity PR-4** (and any other recorder that writes WAV cue points) and adds them as **clip markers** to your audio clips.
+Free Premiere Pro panel that reads the **MARK points of the Deity PR-4** (and any other recorder that writes WAV cue points) and adds them as **clip markers** to your audio clips. It also reads the **notes from the PR-4 sound report** (“Wild Track”, “False Take” …) and shows them in the Project panel as **Log Note**, **Description** or **Comment**.
 
 Premiere ignores the cue chunk in WAV files, so PR-4 markers never show up after import. This plugin fixes that: select the clips, press Import, done. The WAV files are never modified.
 
 ### [**Download the latest release**](https://github.com/Maxiklaxi/Cue-Marker/releases/latest)
 
-![Cue Marker in Premiere Pro: the panel lists the PR-4 files and their cue points, the imported markers sit on the clips in the timeline](docs/premiere-timeline-1.0.0.webp)
+![Cue Marker in Premiere Pro: the panel lists the PR-4 files with cue points and notes, the Project panel shows the notes in the Log Note column, the markers sit on the clips in the timeline](docs/premiere-notes-1.1.0.webp)
 
-*Left: the panel after Import. Right: the PR-4 markers on the clips in the timeline.*
+*Left: the panel after Import. Middle: the sound-report notes in the Log Note column. Right: the PR-4 markers on the clips in the timeline.*
+
+<details><summary>Settings</summary>
+
+![Settings](docs/settings-1.1.0.webp)
+
+</details>
 
 ## Install
 
@@ -27,7 +33,7 @@ Requires Premiere Pro 26.2 or newer. On first start the plugin asks for file acc
 
 Markers are named “Mark 1”, “Mark 2” … (the PR-4 stores no names). Prefix, marker color and language (English/German) can be changed in the settings (⚙).
 
-**Notes from the sound report:** the PR-4 saves the notes you type on the recorder (“Wild Track” …) and the scene name in a CSV next to the WAV files, not in the WAV itself. If that CSV is there, Import also writes the note into the clip's **Log Note** field and the scene into **Scene**, so you can show them as columns in the Project panel (*Metadata Display*). Target field and overwrite behaviour are in the settings.
+**Notes from the SOUND REPORT:** the PR-4 saves the notes you pick on the recorder (“Wild Track”, “False Take”, “Room Tone” …) and the scene name in a CSV next to the WAV files, not in the WAV itself. If that CSV is in the folder, Import also writes the note to the clip and the scene to the clip's **Scene** field. You choose in the settings whether the note goes to **Log Note**, **Description** or **Comment**; show that column in the Project panel via *Metadata Display* and you see the notes next to your clips, as in the screenshot above. Existing text is kept unless you enable overwriting.
 
 ## Works with
 
