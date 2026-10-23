@@ -211,6 +211,24 @@ html, body {
 .btn-go.btn-disabled:hover { background-color: var(--green-dim); color: var(--green); }
 
 /* ─── Settings ────────────────────────────────────────────── */
+.swatches { display: flex; flex-wrap: wrap; padding: 2px 0 6px; }
+.swatch {
+  width: 22px;
+  height: 22px;
+  margin: 0 6px 6px 0;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  transition: border-color 0.12s;
+}
+.swatch:hover { border-color: rgba(255,255,255,0.45); }
+.swatch.active { border-color: #fff; }
+.swatch.none { background: var(--surface2); }
+
 #viewSettings { background: var(--ground); }
 .settings-header {
   display: flex;

@@ -6,5 +6,6 @@
 - Reads `cue ` chunks from RIFF, RF64 and BW64 WAV files; uses `labl`/`note` entries when present.
 - Check mode (read-only) and import mode (clip markers, one undo step per clip).
 - Skips positions that already carry a marker.
+- Optional marker color.
 - English and German UI.
 - Flat panel layout: tinted clip rows, status strip with Check/Import buttons, full-panel settings, flyout menu.

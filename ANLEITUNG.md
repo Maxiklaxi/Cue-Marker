@@ -31,6 +31,7 @@ Ergebnis pro Clip:
 ## Einstellungen (⚙ oder Flyout-Menü ≡ des Panels)
 
 - **Marker-Name** – Standard „Mark“, wird nummeriert („Mark 1“ …). Enthält die WAV Labels (`labl`), haben diese Vorrang.
+- **Marker-Farbe** – Grün, Rot, Lila, Orange, Gelb, Blau, Cyan oder „Standard“ (Premieres Vorgabe). Die Farbe wird direkt nach dem Anlegen in einem zweiten Schritt gesetzt und ist deshalb ein eigener Undo-Eintrag. Weiß bietet die API nicht dokumentiert an.
 - **Vorhandene Marker überspringen** – kein zweiter Marker innerhalb von 2 ms an derselben Stelle.
 - **Dateiname im Kommentar** – Kommentar enthält Cue-Nummer, Zeit, Sample und Dateiname.
 - **Debug-Protokoll** – zeigt Pfade, Lesevariante, Chunks und Fehlerdetails unter der Liste. Auch über das Listen-Symbol in der Werkzeugleiste. Bei Problemen einschalten und über das Kopieren-Symbol weitergeben. Das Protokoll ist immer englisch, damit Fehlerberichte für alle lesbar sind.

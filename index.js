@@ -27,6 +27,11 @@ const STRINGS = {
     "sec.panel": "Panel",
     "opt.prefix": "Marker name",
     "opt.prefix.hint": "Numbered automatically (“Mark 1”, “Mark 2” …). Labels stored in the WAV take precedence.",
+    "opt.color": "Marker color",
+    "opt.color.hint": "“Default” keeps Premiere's standard marker color.",
+    "color.default": "Default",
+    "color.GREEN": "Green", "color.RED": "Red", "color.MAGENTA": "Purple", "color.ORANGE": "Orange",
+    "color.YELLOW": "Yellow", "color.BLUE": "Blue", "color.CYAN": "Cyan",
     "opt.skipDup": "Skip existing markers",
     "opt.skipDup.hint": "No second marker where the clip already has one.",
     "opt.fileComment": "File name in comment",
@@ -76,6 +81,11 @@ const STRINGS = {
     "sec.panel": "Panel",
     "opt.prefix": "Marker-Name",
     "opt.prefix.hint": "Wird fortlaufend nummeriert („Mark 1“, „Mark 2“ …). In der WAV gespeicherte Labels haben Vorrang.",
+    "opt.color": "Marker-Farbe",
+    "opt.color.hint": "„Standard“ behält Premieres Vorgabefarbe.",
+    "color.default": "Standard",
+    "color.GREEN": "Grün", "color.RED": "Rot", "color.MAGENTA": "Lila", "color.ORANGE": "Orange",
+    "color.YELLOW": "Gelb", "color.BLUE": "Blau", "color.CYAN": "Cyan",
     "opt.skipDup": "Vorhandene Marker überspringen",
     "opt.skipDup.hint": "Kein zweiter Marker, wo der Clip schon einen hat.",
     "opt.fileComment": "Dateiname im Kommentar",
@@ -131,12 +141,25 @@ function applyLanguage() {
   for (const el of document.querySelectorAll("[data-i18n]")) el.textContent = t(el.getAttribute("data-i18n"));
   for (const el of document.querySelectorAll("[data-i18n-title]")) el.title = t(el.getAttribute("data-i18n-title"));
   for (const b of document.querySelectorAll("#langRow .seg-btn")) b.classList.toggle("active", b.getAttribute("data-lang") === settings.lang);
+  for (const sw of document.querySelectorAll("#colorRow .swatch")) sw.title = t("color." + sw.getAttribute("data-color"));
   if (statusState === "idle") setStatus(t("status.idle"), "idle");
 }
 
 // ---------- Settings ----------
 const VERSION = "1.0.0";
-const DEFAULTS = { prefix: "Mark", skipDup: true, fileComment: true, debug: false, lang: "auto" };
+const DEFAULTS = { prefix: "Mark", skipDup: true, fileComment: true, debug: false, lang: "auto", color: "default" };
+// Marker colors: names of ppro.Constants.MarkerColor (documented since 25.6; White is not
+// documented and therefore not offered). The hex values only paint the swatches.
+const COLORS = [
+  { key: "default", hex: null },
+  { key: "GREEN", hex: "#4ce890" },
+  { key: "RED", hex: "#ff6b6b" },
+  { key: "MAGENTA", hex: "#d070f0" },
+  { key: "ORANGE", hex: "#f0a030" },
+  { key: "YELLOW", hex: "#f0d040" },
+  { key: "BLUE", hex: "#4a9eff" },
+  { key: "CYAN", hex: "#40d8e0" },
+];
 let settings = { ...DEFAULTS };
 
 function loadSettings() {
@@ -192,8 +215,23 @@ function paintToggle(el, on) {
   el.innerHTML = on ? ICON_TICK : ICON_CROSS;
 }
 
+function buildSwatches() {
+  const rowEl = $("colorRow");
+  rowEl.innerHTML = "";
+  for (const c of COLORS) {
+    const sw = document.createElement("div");
+    sw.className = "swatch" + (c.hex ? "" : " none");
+    sw.setAttribute("data-color", c.key);
+    if (c.hex) sw.style.background = c.hex;
+    else sw.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.2 9.8 9.8 2.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+    sw.addEventListener("click", () => { settings.color = c.key; saveSettings(); applySettings(); });
+    rowEl.appendChild(sw);
+  }
+}
+
 function applySettings() {
   $("optPrefix").value = settings.prefix;
+  for (const sw of document.querySelectorAll("#colorRow .swatch")) sw.classList.toggle("active", sw.getAttribute("data-color") === settings.color);
   paintToggle($("optSkipDup"), settings.skipDup);
   paintToggle($("optFileComment"), settings.fileComment);
   paintToggle($("optDebug"), settings.debug);
@@ -278,6 +316,7 @@ try {
   console.warn("entrypoints.setup failed:", e);
 }
 
+buildSwatches();
 loadSettings();
 applySettings();
 
@@ -520,6 +559,35 @@ async function selectedClips(project) {
   return out;
 }
 
+function markerColorIndex() {
+  if (!settings.color || settings.color === "default") return null;
+  const mc = ppro.Constants && ppro.Constants.MarkerColor;
+  const v = mc ? mc[settings.color] : undefined;
+  return typeof v === "number" ? v : null;
+}
+
+// Second transaction after the add: the add action does not hand back the marker,
+// so the new markers are looked up by time and name and then colored.
+async function colorizeMarkers(project, clip, clipName, fresh, colorIndex) {
+  const markers = await ppro.Markers.getMarkers(clip);
+  if (!markers) return 0;
+  const targets = [];
+  for (const m of markers.getMarkers()) {
+    let start, name;
+    try { start = m.getStart(); name = m.getName(); } catch (_) { continue; }
+    const sec = typeof start.seconds === "number" ? start.seconds : Number(start.ticks) / 254016000000;
+    if (fresh.some((p) => p.name === name && Math.abs(p.seconds - sec) <= DUP_TOLERANCE)) targets.push(m);
+  }
+  if (!targets.length) return 0;
+  let ok = false;
+  project.lockedAccess(() => {
+    ok = project.executeTransaction((ca) => {
+      for (const m of targets) ca.addAction(m.createSetColorByIndexAction(colorIndex));
+    }, `Cue Marker color: ${clipName}`);
+  });
+  return ok ? targets.length : 0;
+}
+
 function existingMarkerTimes(markers) {
   const times = [];
   try {
@@ -586,6 +654,7 @@ async function run(dry) {
       index: i + 1,
       dup: existing.some((x) => Math.abs(x - cue.seconds) <= DUP_TOLERANCE),
     }));
+    for (const p of plan) p.name = p.label || `${settings.prefix} ${p.index}`;
     const fresh = plan.filter((p) => !p.dup);
     const dups = plan.length - fresh.length;
     for (const p of plan) log(`  cue ${p.index}: ${fmtTime(p.seconds)} (sample ${p.sample})${p.dup ? " – exists" : ""}${p.label ? " – " + p.label : ""}`);
@@ -598,7 +667,7 @@ async function run(dry) {
         project.lockedAccess(() => {
           ok = project.executeTransaction((ca) => {
             for (const p of fresh) {
-              const name = p.label || `${settings.prefix} ${p.index}`;
+              const name = p.name;
               const parts = [];
               if (p.note) parts.push(p.note);
               if (settings.fileComment) parts.push(`Cue ${p.index} · ${fmtTime(p.seconds)} · sample ${p.sample} · ${baseName(c.path)}`);
@@ -622,6 +691,17 @@ async function run(dry) {
       }
       added = fresh.length;
       log(`${added} marker(s) added to "${c.name}"`, "ok");
+      const colorIndex = markerColorIndex();
+      if (colorIndex !== null) {
+        try {
+          const n = await colorizeMarkers(project, c.clip, c.name, fresh, colorIndex);
+          log(`color ${settings.color} (index ${colorIndex}) set on ${n} of ${added} marker(s)`, n === added ? "dim" : "warn");
+        } catch (e) {
+          log(`setting color failed for "${c.name}": ${e.message || e}`, "warn");
+        }
+      } else if (settings.color !== "default") {
+        log(`color ${settings.color} unknown in this Premiere version – markers keep the default color`, "warn");
+      }
     }
 
     totalNew += dry ? fresh.length : added;
