@@ -2,3 +2,5 @@
 node_modules/
 *.ccx
 *.pek
+dist/
+package/

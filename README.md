@@ -101,6 +101,8 @@ node _test_cues.js index.js /path/to/recording.wav [more.wav …]
 
 It prints format, sample rate, cue positions and how many bytes were actually read. The expected sample positions of the bundled reference recording `PR-4_T_7.wav` are hard-coded in the script, so it doubles as a regression test.
 
+To build a release package run `./build-ccx.sh`. It zips only the plugin files, so the `.ccx` stays small and free of repository clutter. For a new version bump `version` in `manifest.json` and `VERSION` in `index.js`, add a changelog entry, then publish a GitHub release tagged `vX.Y.Z` with the `.ccx` attached. The in-panel update check reads that tag.
+
 Files:
 
 | File | Purpose |
@@ -109,6 +111,7 @@ Files:
 | `index.html` / `styles.css` | Panel UI (plain HTML/CSS, Flexbox only, no framework). `styles.css` carries the look and can be reused for other panels. |
 | `index.js` | Strings, UI, WAV parser, file access, Premiere integration |
 | `_test_cues.js` | Node test for the parser |
+| `build-ccx.sh` | Builds the installable `.ccx` (a zip of the four plugin files) into `dist/` |
 | `ANLEITUNG.md` | German manual |
 
 ## Limitations
