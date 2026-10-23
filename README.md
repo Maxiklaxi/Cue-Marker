@@ -6,6 +6,12 @@ Field recorders such as the **Deity PR-4** write their MARK button presses into 
 
 ![Cue Marker panel](docs/screenshot.png)
 
+<details><summary>Settings view</summary>
+
+![Settings](docs/screenshot-settings.png)
+
+</details>
+
 ## Features
 
 - Reads `cue ` chunks from **RIFF**, **RF64** and **BW64** WAV files (the PR-4 writes RF64 even for small files).
@@ -16,6 +22,7 @@ Field recorders such as the **Deity PR-4** write their MARK button presses into 
 - Skips positions that already carry a clip marker (±2 ms), so you can re-run it safely.
 - Bins, sequences, offline clips and non-WAV media in the selection are skipped and listed with the reason.
 - English and German UI, automatically chosen from the system language and switchable in the settings.
+- Flat, tool-like panel in the style of other Premiere UXP panels such as OpenCurve: clip rows tinted by result, status strip and Go button at the bottom, settings as a full-panel view. Settings are also reachable from the panel's flyout menu (≡).
 
 ## Works with
 
@@ -44,19 +51,19 @@ Recorders from Zoom, Sound Devices, Tascam and others write the same chunk and s
 ## Usage
 
 1. Select the audio clips in the **Project panel** (multiple selection is fine; bins are skipped, not searched).
-2. Click **Check**. The panel lists every clip with its cue count and times.
-3. Click **Import markers**. The markers appear in the Source Monitor and in the Markers panel when the clip is open there.
+2. Click **Check** in the bottom bar. The panel lists every clip with its cue count and times; the status strip sums it up.
+3. Click **Import**. Rows turn green for clips that received markers. The markers appear in the Source Monitor and in the Markers panel when the clip is open there.
 
 Times shown as `mm:ss.mmm`; a trailing `*` marks positions that already had a marker.
 
-## Settings (⚙)
+## Settings (⚙ or flyout menu)
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | Marker name | `Mark` | Prefix for numbered markers. Labels stored in the WAV take precedence. |
 | Skip existing markers | on | No second marker within 2 ms of an existing one. |
 | File name in comment | on | Marker comment contains cue number, time, sample position and file name. |
-| Show debug log | off | Shows file paths, the read method that worked, chunk layout and error details. Turn it on before reporting a bug and use *Copy log*. |
+| Debug log | off | Shows file paths, the read method that worked, chunk layout and error details below the list. Also toggled by the list icon in the toolbar and from the flyout menu. Turn it on before reporting a bug and use the copy icon. |
 | Language | Auto | English / German. |
 
 ## How it works
@@ -83,7 +90,7 @@ Files:
 | File | Purpose |
 | --- | --- |
 | `manifest.json` | UXP manifest (v5), Premiere Pro host, `fullAccess` file permission |
-| `index.html` / `styles.css` | Panel UI (plain HTML/CSS, Flexbox only, no framework) |
+| `index.html` / `styles.css` | Panel UI (plain HTML/CSS, Flexbox only, no framework). `styles.css` carries the look and can be reused for other panels. |
 | `index.js` | Strings, UI, WAV parser, file access, Premiere integration |
 | `_test_cues.js` | Node test for the parser |
 | `ANLEITUNG.md` | German manual |

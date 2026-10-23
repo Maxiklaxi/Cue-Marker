@@ -16,34 +16,33 @@ const { localFileSystem, formats } = require("uxp").storage;
 const STRINGS = {
   en: {
     "settings": "Settings",
-    "step1.title": "Select clips in the Project panel",
-    "step1.hint": "Select the audio clips in the Project panel. “Check” reads the cue points from the WAV files and lists them without changing anything. “Import markers” adds them as clip markers. The WAV files stay untouched.",
+    "empty": "Select audio clips in the Project panel, then press Check or Import.",
     "btn.preview": "Check",
-    "btn.run": "Import markers",
-    "section.result": "Result",
-    "empty": "Nothing checked yet.",
+    "btn.run": "Import",
     "btn.copy": "Copy log",
-    "btn.copied": "Copied ✓",
+    "btn.copied": "Log copied",
     "btn.copyFailed": "Copy failed",
-    "btn.clear": "Clear",
-    "btn.back": "Back",
+    "btn.clear": "Clear log",
+    "sec.markers": "Markers",
+    "sec.panel": "Panel",
     "opt.prefix": "Marker name",
-    "opt.prefix.hint": "Numbered automatically, e.g. “Mark 1”, “Mark 2”. Labels stored in the WAV take precedence.",
+    "opt.prefix.hint": "Numbered automatically (“Mark 1”, “Mark 2” …). Labels stored in the WAV take precedence.",
     "opt.skipDup": "Skip existing markers",
-    "opt.skipDup.hint": "If the clip already has a marker at that position, no second one is added.",
+    "opt.skipDup.hint": "No second marker where the clip already has one.",
     "opt.fileComment": "File name in comment",
-    "opt.fileComment.hint": "Writes cue number, time, sample position and file name into the marker comment.",
-    "opt.debug": "Show debug log",
-    "opt.debug.hint": "Shows paths, read method, chunks and error details below the result.",
+    "opt.fileComment.hint": "Cue number, time, sample position and file name go into the marker comment.",
+    "opt.debug": "Debug log",
+    "opt.debug.hint": "Paths, read method, chunks and error details. Always in English.",
     "opt.lang": "Language",
     "opt.lang.hint": "“Auto” follows the system language.",
     "lang.auto": "Auto",
     "footer.version": "Version",
     "clips": (n) => `${n} clip${n === 1 ? "" : "s"}`,
-    "err.noProject": "No project open.",
+    "status.idle": "Select audio clips in the Project panel",
     "status.reading": "Reading selection …",
     "status.importing": "Importing …",
-    "status.nothingSelected": "Nothing selected. Please select audio clips in the Project panel.",
+    "status.nothingSelected": "Nothing selected in the Project panel",
+    "err.noProject": "No project open.",
     "skip.folder": "bin",
     "skip.sequence": "sequence",
     "skip.notMedia": "not a media clip",
@@ -60,40 +59,39 @@ const STRINGS = {
     "sub.existing": (n) => `${n} already present`,
     "err.markersUnreachable": "Clip markers not accessible.",
     "err.transaction": "Premiere rejected the transaction.",
-    "summary.dry": (files, n, dup, err) => `${files} file${files === 1 ? "" : "s"} read: ${n} marker${n === 1 ? "" : "s"} would be added` + (dup ? `, ${dup} already present` : "") + (err ? `, ${err} error${err === 1 ? "" : "s"}` : "") + ".",
-    "summary.run": (files, n, dup, err) => `${n} marker${n === 1 ? "" : "s"} added to ${files} clip${files === 1 ? "" : "s"}` + (dup ? `, ${dup} already present` : "") + (err ? `, ${err} error${err === 1 ? "" : "s"}` : "") + ".",
+    "summary.dry": (files, n, dup, err) => `${files} file${files === 1 ? "" : "s"}: ${n} marker${n === 1 ? "" : "s"} to add` + (dup ? `, ${dup} present` : "") + (err ? `, ${err} error${err === 1 ? "" : "s"}` : ""),
+    "summary.run": (files, n, dup, err) => `${n} marker${n === 1 ? "" : "s"} added to ${files} clip${files === 1 ? "" : "s"}` + (dup ? `, ${dup} present` : "") + (err ? `, ${err} error${err === 1 ? "" : "s"}` : ""),
     "error": "Error",
   },
   de: {
     "settings": "Einstellungen",
-    "step1.title": "Clips im Projektfenster markieren",
-    "step1.hint": "Audioclips im Projektfenster auswählen. „Prüfen“ liest die Cue-Punkte aus den WAV-Dateien und zeigt sie an, ohne etwas zu ändern. „Marker importieren“ legt sie als Clip-Marker an. Die WAV-Dateien bleiben unverändert.",
+    "empty": "Audioclips im Projektfenster auswählen, dann „Prüfen“ oder „Import“ drücken.",
     "btn.preview": "Prüfen",
-    "btn.run": "Marker importieren",
-    "section.result": "Ergebnis",
-    "empty": "Noch nichts geprüft.",
+    "btn.run": "Import",
     "btn.copy": "Protokoll kopieren",
-    "btn.copied": "Kopiert ✓",
+    "btn.copied": "Protokoll kopiert",
     "btn.copyFailed": "Kopieren fehlgeschlagen",
-    "btn.clear": "Leeren",
-    "btn.back": "Zurück",
+    "btn.clear": "Protokoll leeren",
+    "sec.markers": "Marker",
+    "sec.panel": "Panel",
     "opt.prefix": "Marker-Name",
-    "opt.prefix.hint": "Wird fortlaufend nummeriert, z. B. „Mark 1“, „Mark 2“. In der WAV gespeicherte Labels haben Vorrang.",
+    "opt.prefix.hint": "Wird fortlaufend nummeriert („Mark 1“, „Mark 2“ …). In der WAV gespeicherte Labels haben Vorrang.",
     "opt.skipDup": "Vorhandene Marker überspringen",
-    "opt.skipDup.hint": "Liegt an der Stelle schon ein Clip-Marker, wird kein zweiter gesetzt.",
+    "opt.skipDup.hint": "Kein zweiter Marker, wo der Clip schon einen hat.",
     "opt.fileComment": "Dateiname im Kommentar",
-    "opt.fileComment.hint": "Schreibt Cue-Nummer, Zeit, Sample-Position und Dateiname in den Marker-Kommentar.",
-    "opt.debug": "Debug-Protokoll anzeigen",
-    "opt.debug.hint": "Zeigt Pfade, Lesevariante, Chunks und Fehlerdetails unter dem Ergebnis.",
+    "opt.fileComment.hint": "Cue-Nummer, Zeit, Sample-Position und Dateiname kommen in den Marker-Kommentar.",
+    "opt.debug": "Debug-Protokoll",
+    "opt.debug.hint": "Pfade, Lesevariante, Chunks und Fehlerdetails. Immer auf Englisch.",
     "opt.lang": "Sprache",
     "opt.lang.hint": "„Auto“ folgt der Systemsprache.",
     "lang.auto": "Auto",
     "footer.version": "Version",
     "clips": (n) => `${n} Clip${n === 1 ? "" : "s"}`,
-    "err.noProject": "Kein Projekt geöffnet.",
+    "status.idle": "Audioclips im Projektfenster auswählen",
     "status.reading": "Lese Auswahl …",
     "status.importing": "Importiere …",
-    "status.nothingSelected": "Nichts ausgewählt. Bitte Audioclips im Projektfenster markieren.",
+    "status.nothingSelected": "Nichts im Projektfenster ausgewählt",
+    "err.noProject": "Kein Projekt geöffnet.",
     "skip.folder": "Ordner",
     "skip.sequence": "Sequenz",
     "skip.notMedia": "kein Medienclip",
@@ -110,15 +108,15 @@ const STRINGS = {
     "sub.existing": (n) => `${n} bereits vorhanden`,
     "err.markersUnreachable": "Clip-Marker nicht erreichbar.",
     "err.transaction": "Premiere hat die Transaktion abgelehnt.",
-    "summary.dry": (files, n, dup, err) => `${files} Datei${files === 1 ? "" : "en"} gelesen: ${n} Marker würden gesetzt` + (dup ? `, ${dup} bereits vorhanden` : "") + (err ? `, ${err} Fehler` : "") + ".",
-    "summary.run": (files, n, dup, err) => `${n} Marker gesetzt in ${files} Clip${files === 1 ? "" : "s"}` + (dup ? `, ${dup} bereits vorhanden` : "") + (err ? `, ${err} Fehler` : "") + ".",
+    "summary.dry": (files, n, dup, err) => `${files} Datei${files === 1 ? "" : "en"}: ${n} Marker zu setzen` + (dup ? `, ${dup} vorhanden` : "") + (err ? `, ${err} Fehler` : ""),
+    "summary.run": (files, n, dup, err) => `${n} Marker gesetzt in ${files} Clip${files === 1 ? "" : "s"}` + (dup ? `, ${dup} vorhanden` : "") + (err ? `, ${err} Fehler` : ""),
     "error": "Fehler",
   },
 };
 
 function systemLang() {
   try {
-    const l = (navigator.language || navigator.languages?.[0] || "en").toLowerCase();
+    const l = (navigator.language || (navigator.languages && navigator.languages[0]) || "en").toLowerCase();
     return l.startsWith("de") ? "de" : "en";
   } catch (_) { return "en"; }
 }
@@ -132,7 +130,8 @@ function t(key, ...args) {
 function applyLanguage() {
   for (const el of document.querySelectorAll("[data-i18n]")) el.textContent = t(el.getAttribute("data-i18n"));
   for (const el of document.querySelectorAll("[data-i18n-title]")) el.title = t(el.getAttribute("data-i18n-title"));
-  for (const b of document.querySelectorAll("#langRow .btn")) b.classList.toggle("active", b.getAttribute("data-lang") === settings.lang);
+  for (const b of document.querySelectorAll("#langRow .seg-btn")) b.classList.toggle("active", b.getAttribute("data-lang") === settings.lang);
+  if (statusState === "idle") setStatus(t("status.idle"), "idle");
 }
 
 // ---------- Settings ----------
@@ -155,6 +154,10 @@ const $ = (id) => document.getElementById(id);
 const logEl = $("log");
 const logLines = [];
 let busy = false;
+let statusState = "idle";
+
+const ICON_TICK = '<svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6.3 4.6 8.9 10 3.3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_CROSS = '<svg width="14" height="14" viewBox="0 0 12 12" fill="none"><line x1="2.5" y1="2.5" x2="9.5" y2="9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="9.5" y1="2.5" x2="2.5" y2="9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 
 function log(msg, cls) {
   logLines.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
@@ -165,17 +168,36 @@ function log(msg, cls) {
   logEl.scrollTop = logEl.scrollHeight;
 }
 
+// Status strip at the bottom: idle | busy | done | warn | error
+function setStatus(msg, state) {
+  statusState = state || "idle";
+  $("statusText").textContent = msg || "";
+  $("statusStrip").className = "status-strip status-" + statusState;
+}
+
+// Called by run(): "" while working, "ok" when done, "warn" / "err" otherwise
 function summary(msg, cls) {
-  const el = $("summary");
-  el.textContent = msg || "";
-  el.className = "status" + (msg ? " visible" : "") + (cls ? " " + cls : "");
+  setStatus(msg, cls === "ok" ? "done" : cls === "warn" ? "warn" : cls === "err" ? "error" : "busy");
+}
+
+function flashStatus(msg) {
+  const prev = { msg: $("statusText").textContent, state: statusState };
+  setStatus(msg, "done");
+  setTimeout(() => setStatus(prev.msg, prev.state), 1800);
+}
+
+function paintToggle(el, on) {
+  el.classList.toggle("on", on);
+  el.classList.toggle("off", !on);
+  el.innerHTML = on ? ICON_TICK : ICON_CROSS;
 }
 
 function applySettings() {
   $("optPrefix").value = settings.prefix;
-  $("optSkipDup").checked = settings.skipDup;
-  $("optFileComment").checked = settings.fileComment;
-  $("optDebug").checked = settings.debug;
+  paintToggle($("optSkipDup"), settings.skipDup);
+  paintToggle($("optFileComment"), settings.fileComment);
+  paintToggle($("optDebug"), settings.debug);
+  $("btnLog").classList.toggle("on", settings.debug);
   $("logWrap").classList.toggle("visible", settings.debug);
   $("ver").textContent = VERSION;
   applyLanguage();
@@ -188,8 +210,8 @@ function showView(name) {
 
 function setBusy(b) {
   busy = b;
-  $("btnPreview").disabled = b;
-  $("btnRun").disabled = b;
+  $("btnPreview").classList.toggle("btn-disabled", b);
+  $("btnRun").classList.toggle("btn-disabled", b);
 }
 
 async function guarded(fn) {
@@ -211,27 +233,50 @@ $("btnPreview").addEventListener("click", () => guarded(() => run(true)));
 $("btnRun").addEventListener("click", () => guarded(() => run(false)));
 $("btnSettings").addEventListener("click", () => showView("settings"));
 $("btnBack").addEventListener("click", () => showView("main"));
+$("btnLog").addEventListener("click", () => { settings.debug = !settings.debug; saveSettings(); applySettings(); });
 $("optPrefix").addEventListener("change", (e) => {
   settings.prefix = e.target.value.trim() || DEFAULTS.prefix;
   saveSettings(); applySettings();
 });
-$("optSkipDup").addEventListener("change", (e) => { settings.skipDup = e.target.checked; saveSettings(); });
-$("optFileComment").addEventListener("change", (e) => { settings.fileComment = e.target.checked; saveSettings(); });
-$("optDebug").addEventListener("change", (e) => { settings.debug = e.target.checked; saveSettings(); applySettings(); });
-for (const b of document.querySelectorAll("#langRow .btn")) {
-  b.addEventListener("click", () => { settings.lang = b.getAttribute("data-lang"); saveSettings(); applySettings(); });
+for (const row of document.querySelectorAll(".setting-row[data-opt]")) {
+  const key = row.getAttribute("data-opt");
+  row.addEventListener("click", () => { settings[key] = !settings[key]; saveSettings(); applySettings(); });
+}
+for (const b of document.querySelectorAll("#langRow .seg-btn")) {
+  b.addEventListener("click", (e) => { e.stopPropagation(); settings.lang = b.getAttribute("data-lang"); saveSettings(); applySettings(); });
 }
 $("btnClear").addEventListener("click", () => { logEl.innerHTML = ""; logLines.length = 0; });
 $("btnCopy").addEventListener("click", async () => {
-  const b = $("btnCopy");
   try {
     await navigator.clipboard.setContent({ "text/plain": logLines.join("\n") });
-    b.textContent = t("btn.copied");
+    flashStatus(t("btn.copied"));
   } catch (e) {
-    b.textContent = t("btn.copyFailed");
+    flashStatus(t("btn.copyFailed"));
   }
-  setTimeout(() => { b.textContent = t("btn.copy"); }, 2000);
 });
+
+// Panel flyout menu (the ≡ menu in the panel tab), like other UXP panels
+try {
+  require("uxp").entrypoints.setup({
+    panels: {
+      cueMarkerPanel: {
+        show() {}, hide() {}, destroy() {},
+        menuItems: [
+          { id: "settings", label: "Settings" },
+          { id: "debug", label: "Debug Log" },
+          { id: "sep", label: "-" },
+          { id: "made-by", label: "made by Mees-Film", enabled: false },
+        ],
+        invokeMenu(id) {
+          if (id === "settings") showView("settings");
+          if (id === "debug") { settings.debug = !settings.debug; saveSettings(); applySettings(); }
+        },
+      },
+    },
+  });
+} catch (e) {
+  console.warn("entrypoints.setup failed:", e);
+}
 
 loadSettings();
 applySettings();
@@ -247,38 +292,39 @@ function fmtTime(sec) {
   return (h ? p(h, 2) + ":" : "") + `${p(m, 2)}:${p(s, 2)}.${p(r, 3)}`;
 }
 
+// rows: { name, chip, chipCls: ok|warn|err|accent|undefined, sub, times[] }
 function renderList(rows) {
   const list = $("list");
   list.innerHTML = "";
   $("empty").style.display = rows.length ? "none" : "";
   $("listCount").textContent = rows.length ? t("clips", rows.length) : "";
   for (const r of rows) {
-    const item = document.createElement("div");
-    item.className = "item";
+    const row = document.createElement("div");
+    row.className = "row " + (r.chipCls || "dim");
     const head = document.createElement("div");
-    head.className = "item-head";
-    const name = document.createElement("div");
-    name.className = "item-name";
+    head.className = "row-head";
+    const name = document.createElement("span");
+    name.className = "row-name";
     name.textContent = r.name;
     const chip = document.createElement("span");
-    chip.className = "chip " + (r.chipCls || "");
+    chip.className = "row-chip";
     chip.textContent = r.chip;
     head.appendChild(name);
     head.appendChild(chip);
-    item.appendChild(head);
+    row.appendChild(head);
     if (r.sub) {
       const sub = document.createElement("div");
-      sub.className = "item-sub";
+      sub.className = "row-sub";
       sub.textContent = r.sub;
-      item.appendChild(sub);
+      row.appendChild(sub);
     }
     if (r.times && r.times.length) {
       const el = document.createElement("div");
-      el.className = "item-times";
+      el.className = "row-times";
       el.textContent = r.times.join("  ·  ");
-      item.appendChild(el);
+      row.appendChild(el);
     }
-    list.appendChild(item);
+    list.appendChild(row);
   }
 }
 
