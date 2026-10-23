@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="panel-header">
+    <div>
+      <div class="eyebrow">Mees. Film</div>
+      <h1 class="panel-title">Cue Marker<span class="dot">.</span></h1>
+    </div>
+    <button class="icon-btn" id="btnSettings" data-i18n-title="settings">⚙</button>
+  </div>
+
+  <!-- ========== Main view ========== -->
+  <div id="viewMain" class="view active">
+
+    <div class="card accent">
+      <div class="card-head"><div class="step">1</div><div class="card-title" data-i18n="step1.title"></div></div>
+      <p class="hint" data-i18n="step1.hint"></p>
+      <div class="row">
+        <button class="btn" id="btnPreview" data-i18n="btn.preview"></button>
+        <button class="btn primary" id="btnRun" data-i18n="btn.run"></button>
+      </div>
+      <div class="status" id="summary"></div>
+    </div>
+
+    <div class="section-label"><span data-i18n="section.result"></span><span id="listCount"></span></div>
+    <div class="empty" id="empty" data-i18n="empty"></div>
+    <div class="list" id="list"></div>
+
+    <div class="log-wrap" id="logWrap">
+      <div class="row">
+        <button class="btn ghost" id="btnCopy" data-i18n="btn.copy"></button>
+        <button class="btn ghost" id="btnClear" data-i18n="btn.clear"></button>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <!-- ========== Settings ========== -->
+  <div id="viewSettings" class="view">
+    <div class="card">
+      <div class="field">
+        <label for="optPrefix"><span data-i18n="opt.prefix"></span><small data-i18n="opt.prefix.hint"></small></label>
+        <input type="text" id="optPrefix" value="Mark">
+      </div>
+      <div class="toggle">
+        <label for="optSkipDup"><span data-i18n="opt.skipDup"></span><small data-i18n="opt.skipDup.hint"></small></label>
+        <input type="checkbox" id="optSkipDup" checked>
+      </div>
+      <div class="toggle">
+        <label for="optFileComment"><span data-i18n="opt.fileComment"></span><small data-i18n="opt.fileComment.hint"></small></label>
+        <input type="checkbox" id="optFileComment" checked>
+      </div>
+      <div class="toggle">
+        <label for="optDebug"><span data-i18n="opt.debug"></span><small data-i18n="opt.debug.hint"></small></label>
+        <input type="checkbox" id="optDebug">
+      </div>
+      <div class="field">
+        <label><span data-i18n="opt.lang"></span><small data-i18n="opt.lang.hint"></small></label>
+        <div class="row seg" id="langRow">
+          <button class="btn" data-lang="auto" data-i18n="lang.auto"></button>
+          <button class="btn" data-lang="en">English</button>
+          <button class="btn" data-lang="de">Deutsch</button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="btnBack" data-i18n="btn.back"></button>
+    </div>
+    <div class="footer">Cue Marker · <span data-i18n="footer.version"></span> <span id="ver"></span> · Mees. Film</div>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
